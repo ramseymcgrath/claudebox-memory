@@ -13,10 +13,11 @@ import (
 
 // Config holds resolved startup configuration.
 type Config struct {
-	RemoteURL  string
-	AuthToken  string
-	Namespaces []string
-	MultiRepo  bool
+	RemoteURL    string
+	AuthToken    string
+	ExtraHeaders map[string]string
+	Namespaces   []string
+	MultiRepo    bool
 }
 
 func main() {
@@ -37,11 +38,14 @@ func main() {
 		log.Fatalf("namespace detection failed: %v", err)
 	}
 
+	extraHeaders := parseExtraHeaders(os.Getenv("MEMORY_MCP_EXTRA_HEADERS"))
+
 	cfg := Config{
-		RemoteURL:  remoteURL,
-		AuthToken:  token,
-		Namespaces: namespaces,
-		MultiRepo:  len(namespaces) > 1,
+		RemoteURL:    remoteURL,
+		AuthToken:    token,
+		ExtraHeaders: extraHeaders,
+		Namespaces:   namespaces,
+		MultiRepo:    len(namespaces) > 1,
 	}
 
 	log.Printf("memory-mcp-proxy: namespaces=%v multi=%v url=%s", cfg.Namespaces, cfg.MultiRepo, cfg.RemoteURL)
@@ -110,6 +114,22 @@ func repoNameFromGit(dir string) (string, error) {
 	}
 
 	return extractRepoName(strings.TrimSpace(string(out))), nil
+}
+
+// parseExtraHeaders parses comma-separated "Name: Value" pairs.
+// e.g. "X-CF-Bypass: secret123, X-Other: val"
+func parseExtraHeaders(raw string) map[string]string {
+	headers := make(map[string]string)
+	if raw == "" {
+		return headers
+	}
+	for _, pair := range strings.Split(raw, ",") {
+		name, value, ok := strings.Cut(strings.TrimSpace(pair), ":")
+		if ok {
+			headers[strings.TrimSpace(name)] = strings.TrimSpace(value)
+		}
+	}
+	return headers
 }
 
 func extractRepoName(gitURL string) string {

@@ -59,6 +59,34 @@ func TestExtractRepoName(t *testing.T) {
 	}
 }
 
+func TestParseExtraHeaders(t *testing.T) {
+	tests := []struct {
+		name string
+		raw  string
+		want map[string]string
+	}{
+		{"empty", "", map[string]string{}},
+		{"single", "X-CF-Bypass: secret123", map[string]string{"X-CF-Bypass": "secret123"}},
+		{"multiple", "X-CF-Bypass: abc, X-Other: def", map[string]string{"X-CF-Bypass": "abc", "X-Other": "def"}},
+		{"extra whitespace", " X-Foo : bar , X-Baz : qux ", map[string]string{"X-Foo": "bar", "X-Baz": "qux"}},
+		{"no colon skipped", "bad-header", map[string]string{}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := parseExtraHeaders(tt.raw)
+			if len(got) != len(tt.want) {
+				t.Fatalf("got %v, want %v", got, tt.want)
+			}
+			for k, v := range tt.want {
+				if got[k] != v {
+					t.Errorf("header %q: got %q, want %q", k, got[k], v)
+				}
+			}
+		})
+	}
+}
+
 func TestDetectNamespaces_EnvVar(t *testing.T) {
 	t.Setenv("MEMORY_NAMESPACE", "test-project")
 

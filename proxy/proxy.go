@@ -33,10 +33,15 @@ func (r *RemoteClient) ensureInit(ctx context.Context) error {
 		return nil
 	}
 
+	headers := map[string]string{
+		"x-service-auth": r.cfg.AuthToken,
+	}
+	for k, v := range r.cfg.ExtraHeaders {
+		headers[k] = v
+	}
+
 	c, err := client.NewStreamableHttpClient(r.cfg.RemoteURL,
-		transport.WithHTTPHeaders(map[string]string{
-			"x-service-auth": r.cfg.AuthToken,
-		}),
+		transport.WithHTTPHeaders(headers),
 		transport.WithHTTPTimeout(10*time.Second),
 	)
 	if err != nil {
