@@ -1,0 +1,37 @@
+{
+  "name": "memory-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "memory-api.ramseymcgrath.com", "custom_domain": true }
+  ],
+  "d1_databases": [
+    {
+      "binding": "MEMORY_DB",
+      "database_name": "memory-mcp",
+      "database_id": "bb6f2a5b-1f1c-43d5-9340-a06e4fd58c63"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CHATS",
+      "id": "ed4037b843d143cf841c7f0d430612e6"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true,
+      "destinations": ["dd"]
+    }
+  },
+  "tail_consumers": [
+    { "service": "telemetry-worker" }
+  ]
+}

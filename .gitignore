@@ -24,8 +24,15 @@ profile.cov
 go.work
 go.work.sum
 
+# Node (Worker)
+node_modules/
+
 # env file
 .env
+
+# Planning docs
+*.plan.md
+.claude/
 
 # Editor/IDE
 # .idea/
