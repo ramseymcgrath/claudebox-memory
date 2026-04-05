@@ -29,7 +29,7 @@ func main() {
 
 	remoteURL := os.Getenv("MEMORY_MCP_URL")
 	if remoteURL == "" {
-		remoteURL = "https://memory-api.ramseymcgrath.com/mcp"
+		log.Fatal("MEMORY_MCP_URL is required")
 	}
 
 	namespaces, err := detectNamespaces()
